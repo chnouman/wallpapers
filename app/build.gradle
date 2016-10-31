@@ -1,0 +1,136 @@
+apply plugin: 'com.android.application'
+apply plugin: 'org.greenrobot.greendao'
+apply plugin: 'me.tatarka.retrolambda'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "24.0.3"
+    defaultConfig {
+        applicationId "com.mootazltaief.wallpapers"
+        minSdkVersion 21
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        vectorDrawables.useSupportLibrary = true
+        testInstrumentationRunner "${applicationId}.runner.RxAndroidJUnitRunner"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    signingConfigs {
+        // You must set up an environment var before release signing
+        // Run: export APP_KEY={password}
+        // TODO Add your release keystore in /keystore folder
+        /*release {
+            storeFile file('keystore/release.keystore')
+            keyAlias 'alias'
+            storePassword "$System.env.RELEASE_PASSWORD"
+            keyPassword "$System.env.RELEASE_PASSWORD"
+        }*/
+
+        debug {
+            storeFile file('keystore/debug.keystore')
+            keyAlias 'androiddebugkey'
+            storePassword 'android'
+            keyPassword 'android'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            versionNameSuffix " .debug"
+            debuggable true
+        }
+    }
+
+    sourceSets {
+        def commonTestDir = 'src/commonTest/java'
+        test {
+            java.srcDir commonTestDir
+        }
+        androidTest {
+            java.srcDir commonTestDir
+        }
+    }
+    //Needed because of this https://github.com/square/okio/issues/58
+    lintOptions {
+        warning 'InvalidPackage'
+    }
+}
+
+dependencies {
+
+    def daggerCompiler = "com.google.dagger:dagger-compiler:$DAGGER"
+    def jUnit = "junit:junit:$JUNIT"
+    def mockito = "org.mockito:mockito-core:$MOCKITO"
+
+    compile "com.android.support:appcompat-v7:$SUPPORT_LIBRARY"
+    compile "com.android.support:recyclerview-v7:$SUPPORT_LIBRARY"
+    compile "com.android.support:cardview-v7:$SUPPORT_LIBRARY"
+    compile "com.android.support:design:$SUPPORT_LIBRARY"
+
+    compile "io.reactivex:rxandroid:$RXANDROID"
+    compile "io.reactivex:rxjava:$RXJAVA"
+
+    compile "com.github.clans:fab:$FAB"
+
+    compile "org.greenrobot:greendao:$GREENDAO"
+
+    compile "com.github.kayvannj:PermissionUtils:$PERMISSION_UTILS"
+
+    testCompile "com.squareup.okhttp3:mockwebserver:$MOCKWEBSERVER"
+
+    compile "com.squareup.retrofit2:retrofit:$RETROFIT"
+    compile "com.squareup.retrofit2:converter-gson:$RETROFIT"
+    compile "com.squareup.retrofit2:adapter-rxjava:$RETROFIT"
+    compile "com.squareup.okhttp3:logging-interceptor:$LOGGING_INTERCEPTOR"
+
+    compile "com.squareup.picasso:picasso:$PICASSO"
+
+    compile "com.jakewharton:butterknife:$BUTTERKNIFE"
+    annotationProcessor "com.jakewharton:butterknife-compiler:$BUTTERKNIFE"
+
+    compile "com.github.chrisbanes:PhotoView:$PHOTOVIEW"
+
+    compile  "com.google.dagger:dagger:$DAGGER"
+    provided 'org.glassfish:javax.annotation:10.0-b28' //Required by Dagger2
+    annotationProcessor daggerCompiler
+
+    testAnnotationProcessor daggerCompiler
+    androidTestAnnotationProcessor daggerCompiler
+
+
+    // Instrumentation test dependencies
+    androidTestCompile jUnit
+    androidTestCompile mockito
+    androidTestCompile "com.android.support:support-annotations:$SUPPORT_LIBRARY"
+
+    androidTestCompile("com.android.support.test.espresso:espresso-core:$ESPRESSO", {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+
+    androidTestCompile "com.android.support.test.espresso:espresso-core:$ESPRESSO"
+    androidTestCompile "com.android.support.test.espresso:espresso-intents:$ESPRESSO"
+    androidTestCompile "com.android.support.test:runner:$RUNNER"
+    androidTestCompile "com.android.support.test:rules:$RUNNER"
+
+    // Unit tests dependencies
+    testCompile jUnit
+    testCompile mockito
+    testCompile "org.hamcrest:hamcrest-core:$HAMCREST"
+    testCompile "org.hamcrest:hamcrest-library:$HAMCREST"
+    testCompile "org.hamcrest:hamcrest-integration:$HAMCREST"
+    testCompile "org.robolectric:robolectric:$ROBOLECTRIC"
+}
+
+tasks.matching {it instanceof Test}.all {
+    testLogging.events = ["failed", "passed", "skipped"]
+}
